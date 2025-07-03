@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🇩🇪 德语翻译器 - AI机器翻译</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .translation-form {
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .input-group label i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+        
+        .textarea-container {
+            position: relative;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea::placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+        
+        .char-count {
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            font-size: 12px;
+            color: #666;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .translate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .translate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .translate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .translate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            margin-left: 10px;
+        }
+        
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            border-left: 5px solid #4ecdc4;
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .result-header i {
+            margin-right: 10px;
+            color: #4ecdc4;
+            font-size: 1.2rem;
+        }
+        
+        .result-header h2 {
+            font-size: 1.3rem;
+            margin: 0;
+        }
+        
+        .translation-result {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #2c3e50;
+            border: 1px solid #e1e5e9;
+            min-height: 60px;
+            position: relative;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .translation-result:hover .copy-btn {
+            opacity: 1;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #c62828;
+            margin-top: 20px;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e1e5e9;
+        }
+        
+        .feature {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.2);
+        }
+        
+        .feature i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .feature h3 {
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        
+        .feature p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            background: #f8f9fa;
+        }
+        
+        .example-item:hover {
+            background: #e8f4fd !important;
+            border-color: #667eea !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-language"></i> 德语翻译器</h1>
+            <p>基于Transformer架构的AI机器翻译系统</p>
+        </div>
+        
+        <div class="main-content">
+            <form method="POST" class="translation-form" id="translateForm">
+                <div class="input-group">
+                    <label for="sentence">
+                        <i class="fas fa-edit"></i>请输入德语句子：
+                    </label>
+                    <div class="textarea-container">
+                        <textarea 
+                            name="sentence" 
+                            id="sentence" 
+                            placeholder="例如：Hallo Welt! Wie geht es dir heute?"
+                            maxlength="500"
+                            oninput="updateCharCount(this)"
+                        >{{ sentence }}</textarea>
+                        <div class="char-count" id="charCount">0/500</div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="translate-btn" id="translateBtn">
+                    <i class="fas fa-language"></i>
+                    开始翻译
+                    <div class="loading" id="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                </button>
+            </form>
+
+            {% if translation %}
+                <div class="result-section">
+                    <div class="result-header">
+                        <i class="fas fa-check-circle"></i>
+                        <h2>翻译结果</h2>
+                        {% if translation_time %}
+                            <small style="margin-left: auto; color: #666;">
+                                <i class="fas fa-clock"></i> {{ translation_time }}ms
+                            </small>
+                        {% endif %}
+                    </div>
+                    <div class="translation-result" id="translationResult">
+                        {{ translation }}
+                        <button class="copy-btn" onclick="copyTranslation()">
+                            <i class="fas fa-copy"></i> 复制
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if error_message %}
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    {{ error_message }}
+                </div>
+            {% endif %}
+            
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-brain"></i>
+                    <h3>AI智能翻译</h3>
+                    <p>基于Transformer神经网络</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-lightning-bolt"></i>
+                    <h3>快速响应</h3>
+                    <p>毫秒级翻译速度</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>数据安全</h3>
+                    <p>本地部署，隐私保护</p>
+                </div>
+            </div>
+            
+            <div class="examples-section" style="margin-top: 30px; padding-top: 30px; border-top: 1px solid #e1e5e9;">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">
+                    <i class="fas fa-lightbulb" style="color: #f39c12;"></i> 示例句子
+                </h3>
+                <div class="examples-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                    <div class="example-item" onclick="useExample('Hallo Welt! Wie geht es dir?')" style="padding: 15px; background: #f8f9fa; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; border: 1px solid #e1e5e9;">
+                        <strong>问候语：</strong><br>
+                        <em>Hallo Welt! Wie geht es dir?</em>
+                    </div>
+                    <div class="example-item" onclick="useExample('Ich bin ein Student und lerne Deutsch.')" style="padding: 15px; background: #f8f9fa; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; border: 1px solid #e1e5e9;">
+                        <strong>自我介绍：</strong><br>
+                        <em>Ich bin ein Student und lerne Deutsch.</em>
+                    </div>
+                    <div class="example-item" onclick="useExample('Das Wetter ist heute sehr schön.')" style="padding: 15px; background: #f8f9fa; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; border: 1px solid #e1e5e9;">
+                        <strong>天气描述：</strong><br>
+                        <em>Das Wetter ist heute sehr schön.</em>
+                    </div>
+                    <div class="example-item" onclick="useExample('Können Sie mir bitte helfen?')" style="padding: 15px; background: #f8f9fa; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; border: 1px solid #e1e5e9;">
+                        <strong>求助用语：</strong><br>
+                        <em>Können Sie mir bitte helfen?</em>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><i class="fas fa-heart" style="color: #e74c3c;"></i> 
+            基于PyTorch构建 | Transformer架构 | 德语↔英语翻译</p>
+        </div>
+    </div>
+
+    <script>
+        function useExample(text) {
+            const textarea = document.getElementById('sentence');
+            textarea.value = text;
+            updateCharCount(textarea);
+            textarea.focus();
+            
+            // 添加视觉反馈
+            const examples = document.querySelectorAll('.example-item');
+            examples.forEach(item => {
+                if (item.textContent.includes(text)) {
+                    item.style.background = '#e8f5e8';
+                    item.style.borderColor = '#4ecdc4';
+                    setTimeout(() => {
+                        item.style.background = '#f8f9fa';
+                        item.style.borderColor = '#e1e5e9';
+                    }, 1000);
+                }
+            });
+        }
+
+        function updateCharCount(textarea) {
+            const count = textarea.value.length;
+            const maxLength = textarea.maxLength;
+            document.getElementById('charCount').textContent = `${count}/${maxLength}`;
+            
+            if (count > maxLength * 0.8) {
+                document.getElementById('charCount').style.color = '#e74c3c';
+            } else {
+                document.getElementById('charCount').style.color = '#666';
+            }
+        }
+
+        function copyTranslation() {
+            const translationText = document.getElementById('translationResult').textContent.trim();
+            navigator.clipboard.writeText(translationText).then(function() {
+                const copyBtn = document.querySelector('.copy-btn');
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> 已复制';
+                copyBtn.style.background = '#27ae60';
+                
+                setTimeout(function() {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.style.background = '#4ecdc4';
+                }, 2000);
+            });
+        }
+
+        document.getElementById('translateForm').addEventListener('submit', function(e) {
+            const sentence = document.getElementById('sentence').value.trim();
+            if (!sentence) {
+                e.preventDefault();
+                alert('请输入要翻译的德语句子');
+                return;
+            }
+            
+            const translateBtn = document.getElementById('translateBtn');
+            const loading = document.getElementById('loading');
+            
+            translateBtn.disabled = true;
+            loading.style.display = 'inline-block';
+            translateBtn.innerHTML = '<i class="fas fa-language"></i> 翻译中... <div class="loading" style="display: inline-block;"><i class="fas fa-spinner fa-spin"></i></div>';
+        });
+
+        // 初始化字符计数
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById('sentence');
+            updateCharCount(textarea);
+        });
+
+        // 添加键盘快捷键支持
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                document.getElementById('translateForm').submit();
+            }
+        });
+    </script>
+</body>
+</html>
